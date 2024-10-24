@@ -1,0 +1,20 @@
+---
+- name: Stop Tomcat service
+  service:
+    name: tomcat
+    state: stopped
+
+- name: Backup old WAR file if it exists
+  command: >
+    mv /opt/tomcat/webapps/SimpleWebApplication.war /opt/tomcat/webapps/SimpleWebApplication_backup.war
+  when: ansible_stat.exists is defined and ansible_stat.exists
+
+- name: Download new WAR file from Nexus
+  get_url:
+    url: "http://54.236.15.239:8081/repository/maven-snapshots/com/maven/SimpleWebApplication/1.0.0-SNAPSHOT/SimpleWebApplication-1.0.0-20241017.154304-1.war"
+    dest: /opt/tomcat/webapps/SimpleWebApplication.war
+
+- name: Start Tomcat service
+  service:
+    name: tomcat
+    state: started
